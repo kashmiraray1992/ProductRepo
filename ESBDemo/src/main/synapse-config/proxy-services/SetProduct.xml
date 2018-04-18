@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<proxy name="SetProduct" startOnLoad="true" transports="jms http https" xmlns="http://ws.apache.org/ns/synapse">
+    <target>
+        <inSequence>
+            <log>
+                <property expression="$body" name="body"/>
+            </log>
+            <iterate attachPath="//jsonObject" continueParent="true" expression="//jsonObject/product" id="stock" preservePayload="true" sequential="true" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+                <target>
+                    <sequence>
+                        <property expression="$body//jsonObject/product/Product_Id" name="Product_Id" scope="default" type="STRING"/>
+                        <property expression="$body//jsonObject/product/Product_Name" name="Product_Name" scope="default" type="STRING"/>
+                        <property expression="$body//jsonObject/product/Prod_Quantity" name="Quantity" scope="default" type="STRING"/>
+                        <property expression="$body//jsonObject/product/Location" name="Location" scope="default" type="STRING"/>
+                        <log>
+                            <property expression="$ctx:Location" name="Location"/>
+                        </log>
+                        <switch source="$body//jsonObject/product/Location">
+                            <case regex="Store">
+                                <payloadFactory media-type="json">
+                                    <format>{"_postaddproducts_batch_req":{
+	"_postaddproducts":[{
+    "Product_Id" : $1,
+    "Product_Name": "$2",
+    "Prod_Quantity": $3,
+    "Location":"$4"
+}]
+}}
+				</format>
+                                    <args>
+                                        <arg evaluator="xml" expression="$ctx:Product_Id"/>
+                                        <arg evaluator="xml" expression="$ctx:Product_Name"/>
+                                        <arg evaluator="xml" expression="$ctx:Quantity"/>
+                                        <arg evaluator="xml" expression="$ctx:Location"/>
+                                    </args>
+                                </payloadFactory>
+                                <log>
+                                    <property expression="$body" name="body"/>
+                                </log>
+                                <call>
+                                    <endpoint>
+                                        <http method="post" uri-template="http://localhost:8280/services/InstoreService/Addproducts_batch_req"/>
+                                    </endpoint>
+                                </call>
+                            </case>
+                            <default>
+                                <payloadFactory media-type="json">
+                                    <format>{"_postproducts_batch_req":{
+	"_postproducts":[{
+    "Product_Id" : $1,
+    "Product_Name": "$2",
+    "Prod_Quantity": $3,
+    "Location":"$4"
+}]
+}}
+				</format>
+                                    <args>
+                                        <arg evaluator="xml" expression="$ctx:Product_Id"/>
+                                        <arg evaluator="xml" expression="$ctx:Product_Name"/>
+                                        <arg evaluator="xml" expression="$ctx:Quantity"/>
+                                        <arg evaluator="xml" expression="$ctx:Location"/>
+                                    </args>
+                                </payloadFactory>
+                                <log>
+                                    <property expression="$body" name="body"/>
+                                </log>
+                                <call>
+                                    <endpoint>
+                                        <http method="post" uri-template="http://localhost:8280/services/OnlineProductService/Products_batch_req"/>
+                                    </endpoint>
+                                </call>
+                            </default>
+                        </switch>
+                        <loopback/>
+                    </sequence>
+                </target>
+            </iterate>
+        </inSequence>
+        <outSequence/>
+        <faultSequence>
+            <drop/>
+        </faultSequence>
+    </target>
+    <parameter name="transport.jms.SessionAcknowledgement">CLIENT_ACKNOWLEDGE</parameter>
+    <parameter name="transport.jms.DestinationType">queue</parameter>
+    <parameter name="transport.jms.Destination">ProductQueue</parameter>
+    <parameter name="transport.jms.ContentType">
+        <rules xmlns="">
+            <jmsProperty>contentType</jmsProperty>
+            <default>application/json</default>
+        </rules>
+    </parameter>
+    <parameter name="transport.jms.SessionTransacted">true</parameter>
+    <parameter name="transport.jms.ConnectionFactory">myQueueConnectionFactory</parameter>
+</proxy>

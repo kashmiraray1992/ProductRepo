@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<proxy name="RemoveStock" startOnLoad="true" transports="http https" xmlns="http://ws.apache.org/ns/synapse">
+    <target>
+        <inSequence>
+            <property expression="$body/*" name="Body" scope="default" type="STRING"/>
+            <log>
+                <property expression="$body" name="body"/>
+            </log>
+            <iterate attachPath="//jsonObject" continueParent="true" expression="//jsonObject/_putremovestock" id="product" preservePayload="true" sequential="true" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+                <target>
+                    <sequence>
+                        <property expression="string('')" name="finalpayload" scope="transport" type="STRING"/>
+                        <property expression="$body//jsonObject/_putremovestock/Product_Id" name="uri.var.pid" scope="default" type="STRING"/>
+                        <property expression="$body//jsonObject/_putremovestock/Quantity" name="Quantity" scope="default" type="STRING"/>
+                        <property expression="$body//jsonObject/_putremovestock/Location" name="Location" scope="default" type="STRING"/>
+                        <log>
+                            <property expression="$ctx:uri.var.pid" name="pid"/>
+                        </log>
+                        <log>
+                            <property expression="$ctx:Quantity" name="quant"/>
+                        </log>
+                        <log>
+                            <property expression="$ctx:Location" name="Location"/>
+                        </log>
+                        <sequence key="ValidateId"/>
+                        <log level="custom">
+                            <property expression="get-property('idexist')" name="idexist"/>
+                        </log>
+                        <switch source="get-property('Location')">
+                            <case regex="Storage">
+                                <filter xpath="get-property('idexist')='true'">
+                                    <then>
+                                        <log>
+                                            <property expression="$body" name="body"/>
+                                        </log>
+                                        <property expression="$body/ns0:Product/ns0:Prod_Quantity" name="Prod_Quantity" scope="default" type="STRING" xmlns:ns0="http://ws.wso2.org/dataservice"/>
+                                        <log>
+                                            <property expression="$ctx:Prod_Quantity" name="Prod_Quantity"/>
+                                            <property expression="$ctx:Quantity" name="quant"/>
+                                        </log>
+                                        <filter xpath="get-property('Prod_Quantity')>=get-property('Quantity')">
+                                            <then>
+                                                <payloadFactory media-type="json">
+                                                    <format>{"_putremovestock_batch_req":{"_putremovestock":[{
+                                "Product_Id":$1,
+                                "Quantity":$2,
+                                "Location":"$3"}]}}
+						</format>
+                                                    <args>
+                                                        <arg evaluator="xml" expression="$ctx:uri.var.pid"/>
+                                                        <arg evaluator="xml" expression="$ctx:Quantity"/>
+                                                        <arg evaluator="xml" expression="$ctx:Location"/>
+                                                    </args>
+                                                </payloadFactory>
+                                                <log>
+                                                    <property expression="$body" name="body"/>
+                                                </log>
+                                                <call>
+                                                    <endpoint>
+                                                        <http method="put" uri-template="http://localhost:8280/services/OnlineProductService/Removestock_batch_req"/>
+                                                    </endpoint>
+                                                </call>
+                                                <sequence key="Notification"/>
+                                                <payloadFactory media-type="json">
+                                                    <format>{"Product_Id":$1,
+                                "Quantity":$2
+                                }
+						</format>
+                                                    <args>
+                                                        <arg evaluator="xml" expression="$ctx:uri.var.pid"/>
+                                                        <arg evaluator="xml" expression="$ctx:Quantity"/>
+                                                    </args>
+                                                </payloadFactory>
+                                                <property expression="$body/jsonObject" name="payload" scope="default" type="STRING"/>
+                                                <script language="js"><![CDATA[var concatValue=mc.getProperty("payload");
+                            var log = mc.getServiceLog();        
+    log.info("after:"+concatValue);
+                            mc.setProperty("concatValue",concatValue);
+                             
+                            log.info("after:"+concatValue);]]></script>
+                                                <property expression="get-property('concatValue')" name="success" scope="default" type="STRING"/>
+                                                <property expression="fn:concat(get-property('operation','finalpayload'),get-property('success'))" name="finalpayload" scope="operation" type="STRING"/>
+                                                <log>
+                                                    <property expression="get-property('operation','finalpayload')" name="success"/>
+                                                </log>
+                                            </then>
+                                            <else>
+                                                <log level="custom">
+                                                    <property name="error" value="Order quantity exceeds than available stock"/>
+                                                </log>
+                                                <payloadFactory media-type="json">
+                                                    <format>{
+                        "Product_Id":$1,
+                        "Message":"Order quantity for  exceeds the available stock"
+							}
+						</format>
+                                                    <args>
+                                                        <arg evaluator="xml" expression="$ctx:uri.var.pid"/>
+                                                    </args>
+                                                </payloadFactory>
+                                                <property expression="$body/jsonObject" name="payload" scope="default" type="STRING"/>
+                                                <script language="js"><![CDATA[var concatValue=mc.getProperty("payload");
+                            var log = mc.getServiceLog();        
+    log.info("after:"+concatValue);
+                            mc.setProperty("concatValue",concatValue);
+                            
+                            log.info("after:"+concatValue);]]></script>
+                                                <property expression="get-property('concatValue')" name="outofstock" scope="default" type="STRING"/>
+                                                <property expression="fn:concat(get-property('operation','finalpayload'),get-property('outofstock'))" name="finalpayload" scope="operation" type="STRING"/>
+                                                <log>
+                                                    <property expression="get-property('operation','finalpayload')" name="outofstock"/>
+                                                </log>
+                                            </else>
+                                        </filter>
+                                    </then>
+                                    <else>
+                                        <payloadFactory media-type="json">
+                                            <format>{
+                        "Product_Id":$1,
+                        "Message":"Invalid ProductId"
+							}
+						</format>
+                                            <args>
+                                                <arg evaluator="xml" expression="$ctx:uri.var.pid"/>
+                                            </args>
+                                        </payloadFactory>
+                                        <property expression="$body/jsonObject" name="payload" scope="default" type="STRING"/>
+                                        <script language="js"><![CDATA[var concatValue=mc.getProperty("payload");
+                            var log = mc.getServiceLog();        
+    log.info("after:"+concatValue);
+                            mc.setProperty("concatValue",concatValue);
+                           
+                            log.info("after:"+concatValue);]]></script>
+                                        <property expression="get-property('concatValue')" name="invalid" scope="default" type="STRING"/>
+                                        <log>
+                                            <property expression="get-property('operation','finalpayload')" name="check"/>
+                                        </log>
+                                        <property expression="fn:concat(get-property('operation','finalpayload'),get-property('invalid'))" name="finalpayload" scope="operation" type="STRING"/>
+                                        <log>
+                                            <property expression="get-property('operation','finalpayload')" name="invalid"/>
+                                        </log>
+                                    </else>
+                                </filter>
+                            </case>
+                            <default>
+                                <payloadFactory media-type="json">
+                                    <format>{
+                        "Product_Id":$1,
+                        "Location":"$2",
+                        "Message":"Operation is not valid for the location"
+							}
+						</format>
+                                    <args>
+                                        <arg evaluator="xml" expression="$ctx:uri.var.pid"/>
+                                        <arg evaluator="xml" expression="$ctx:Location"/>
+                                    </args>
+                                </payloadFactory>
+                                <property expression="$body/jsonObject" name="payload" scope="default" type="STRING"/>
+                                <script language="js"><![CDATA[var concatValue=mc.getProperty("payload");
+                            var log = mc.getServiceLog();        
+    log.info("after:"+concatValue);
+                            mc.setProperty("concatValue",concatValue);
+                           
+                            log.info("after:"+concatValue);]]></script>
+                                <property expression="get-property('concatValue')" name="invalidlocation" scope="default" type="STRING"/>
+                                <log>
+                                    <property expression="get-property('operation','finalpayload')" name="check"/>
+                                </log>
+                                <property expression="fn:concat(get-property('operation','finalpayload'),get-property('invalidlocation'))" name="finalpayload" scope="operation" type="STRING"/>
+                            </default>
+                        </switch>
+                        <loopback/>
+                    </sequence>
+                </target>
+            </iterate>
+        </inSequence>
+        <outSequence>
+            <property name="ECNCLOSING_ELEMENT" scope="default">
+                <ns:Response xmlns:ns="www.response.org"/>
+            </property>
+            <aggregate id="product">
+                <completeCondition>
+                    <messageCount max="-1" min="-1"/>
+                </completeCondition>
+                <onComplete enclosingElementProperty="ECNCLOSING_ELEMENT" expression="$body/*">
+                    <send/>
+                </onComplete>
+            </aggregate>
+        </outSequence>
+        <faultSequence/>
+    </target>
+</proxy>

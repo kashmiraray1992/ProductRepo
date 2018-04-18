@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<proxy name="ProductProxy" startOnLoad="true" transports="http https" xmlns="http://ws.apache.org/ns/synapse">
+    <target>
+        <inSequence>
+            <filter xpath="fn:number($trp:Product_Id)>fn:number(0) and fn:number($trp:Prod_Id)>fn:number(0)">
+                <then>
+                    <property name="itemCount" scope="default" type="INTEGER" value="2"/>
+                    <log level="custom">
+                        <property name="itemCount" value="some value"/>
+                    </log>
+                </then>
+                <else>
+                    <filter xpath="fn:number($trp:Product_Id)>fn:number(0) or fn:number($trp:Prod_Id)>fn:number(0)">
+                        <then>
+                            <property name="itemCount" scope="default" type="INTEGER" value="1"/>
+                        </then>
+                        <else>
+                            <property name="itemCount" scope="default" type="INTEGER" value="0"/>
+                        </else>
+                    </filter>
+                </else>
+            </filter>
+            <switch source="$ctx:itemCount">
+                <case regex="2">
+                    <property expression="$trp:Product_Id" name="uri.var.pid" scope="default" type="INTEGER"/>
+                    <property expression="$trp:Prod_Id" name="uri.var.id" scope="default" type="INTEGER"/>
+                    <call blocking="true">
+                        <endpoint>
+                            <http method="get" uri-template="http://localhost:8280/services/InstoreService/Productrange/{uri.var.pid}/{uri.var.id}"/>
+                        </endpoint>
+                    </call>
+                    <property expression="$body/*" name="Instore" scope="default" type="STRING"/>
+                    <call blocking="true">
+                        <endpoint>
+                            <http method="get" uri-template="http://localhost:8280/services/OnlineProductService/Product/{uri.var.pid}/{uri.var.id}"/>
+                        </endpoint>
+                    </call>
+                    <property expression="$body/*" name="Online" scope="default" type="STRING"/>
+                    <payloadFactory media-type="xml">
+                        <format>
+                            <combined xmlns="">  $1$2</combined>
+                        </format>
+                        <args>
+                            <arg evaluator="xml" expression="get-property('Instore')"/>
+                            <arg evaluator="xml" expression="get-property('Online')"/>
+                        </args>
+                    </payloadFactory>
+                </case>
+                <case regex="1">
+                    <property expression="$trp:Product_Id" name="uri.var.pid" scope="default" type="INTEGER"/>
+                    <call blocking="true">
+                        <endpoint>
+                            <http method="get" uri-template="http://localhost:8280/services/InstoreService/Singleproduct/{uri.var.pid}"/>
+                        </endpoint>
+                    </call>
+                    <property expression="$body/*" name="Instore" scope="default" type="STRING"/>
+                    <call blocking="true">
+                        <endpoint>
+                            <http method="get" uri-template="http://localhost:8280/services/OnlineProductService/Product/{uri.var.pid}"/>
+                        </endpoint>
+                    </call>
+                    <property expression="$body/*" name="Online" scope="default" type="STRING"/>
+                    <payloadFactory media-type="xml">
+                        <format>
+                            <combined xmlns="">  $1$2</combined>
+                        </format>
+                        <args>
+                            <arg evaluator="xml" expression="get-property('Instore')"/>
+                            <arg evaluator="xml" expression="get-property('Online')"/>
+                        </args>
+                    </payloadFactory>
+                </case>
+                <default>
+                    <call blocking="true">
+                        <endpoint>
+                            <http method="get" uri-template="http://localhost:8280/services/InstoreService/Allproducts"/>
+                        </endpoint>
+                    </call>
+                    <property expression="$body/*" name="Instore" scope="default" type="STRING"/>
+                    <call blocking="true">
+                        <endpoint>
+                            <http method="get" uri-template="http://localhost:8280/services/OnlineProductService/Product"/>
+                        </endpoint>
+                    </call>
+                    <property expression="$body/*" name="Online" scope="default" type="STRING"/>
+                    <payloadFactory media-type="xml">
+                        <format>
+                            <combined xmlns="">  $1$2</combined>
+                        </format>
+                        <args>
+                            <arg evaluator="xml" expression="get-property('Instore')"/>
+                            <arg evaluator="xml" expression="get-property('Online')"/>
+                        </args>
+                    </payloadFactory>
+                </default>
+            </switch>
+            <respond/>
+        </inSequence>
+        <outSequence/>
+        <faultSequence/>
+    </target>
+</proxy>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<localEntry key="smooks_conf" xmlns="http://ws.apache.org/ns/synapse">
+    <localEntry key="smooks_conf">
+        <smooks-resource-list xmlns="http://www.milyn.org/xsd/smooks-1.0.xsd">
+            <!--Configure the CSVParser to parse the message into a stream of SAX events. -->
+            <resource-config selector="org.xml.sax.driver">
+                <resource>org.milyn.csv.CSVParser</resource>
+                <param name="fields" type="string-list">Product_Id,Product_Name,Prod_Quantity</param>
+                <param name="strict" type="boolean">false</param>
+                <param name="ident" type="boolean">true</param>
+            </resource-config>
+        </smooks-resource-list>
+    </localEntry>
+</localEntry>

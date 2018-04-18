@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.example.ESBDemo</groupId>
+  <artifactId>ESBDemo_module</artifactId>
+  <version>1.0.0</version>
+  <packaging>pom</packaging>
+  <name>ESBDemo_module</name>
+  <description>ESBDemo_module</description>
+  <modules>
+    <module>artifacts/proxy-service/SampleLogging</module>
+    <module>artifacts/proxy-service/QueueResponseProxy</module>
+    <module>artifacts/proxy-service/QueueProxy</module>
+    <module>artifacts/proxy-service/AccountProxy</module>
+    <module>artifacts/proxy-service/ConditionalProxy</module>
+    <module>artifacts/proxy-service/ProductProxy</module>
+    <module>artifacts/proxy-service/SetProduct</module>
+    <module>artifacts/proxy-service/JMSProxy</module>
+    <module>artifacts/proxy-service/ProductStock</module>
+    <module>artifacts/proxy-service/RemoveStock</module>
+    <module>artifacts/proxy-service/CSVReadService</module>
+    <module>artifacts/sequence/LoggerSeq</module>
+    <module>artifacts/sequence/ProdList</module>
+    <module>artifacts/sequence/Product</module>
+    <module>artifacts/sequence/ProductRange</module>
+    <module>artifacts/sequence/ValidateId</module>
+    <module>artifacts/sequence/Notification</module>
+    <module>artifacts/local-entry/smooks_conf</module>
+  </modules>
+</project>

@@ -1,0 +1,158 @@
+<data enableBatchRequests="true" name="OnlineProductService" transports="http https local">
+    <config id="OnlineProduct">
+        <property name="driverClassName">com.mysql.jdbc.Driver</property>
+        <property name="url">jdbc:mysql://localhost:3306/stockdb</property>
+        <property name="username">root</property>
+        <property name="password">password</property>
+    </config>
+    <query id="ProdSql" output-event-trigger="product_stock_low" useConfig="OnlineProduct">
+        <sql>select Product_Id,Product_Name,Prod_Quantity,Location from ProductOnline where Product_Id=:Product_Id</sql>
+        <result element="Product" rowName="">
+            <element column="Product_Id" name="Product_Id" xsdType="integer"/>
+            <element column="Product_Name" name="Product_Name" xsdType="string"/>
+            <element column="Prod_Quantity" name="Prod_Quantity" xsdType="string"/>
+            <element column="Location" name="Location" xsdType="string"/>
+        </result>
+        <param name="Product_Id" sqlType="INTEGER"/>
+    </query>
+    <query id="ProdAllSql" useConfig="OnlineProduct">
+        <sql>Select Product_Id,Product_Name,Prod_Quantity,Location from ProductOnline</sql>
+        <result element="Entries" rowName="Entry">
+            <element column="Product_Id" name="Product_Id" xsdType="string"/>
+            <element column="Product_Name" name="Product_Name" xsdType="string"/>
+            <element column="Prod_Quantity" name="Prod_Quantity" xsdType="string"/>
+            <element column="Location" name="Location" xsdType="string"/>
+        </result>
+    </query>
+    <query id="ProdListSQl" useConfig="OnlineProduct">
+        <sql>select Product_Id,Product_Name,Prod_Quantity,Location from ProductOnline where Product_Id BETWEEN ? AND ?</sql>
+        <result element="Entries" rowName="Entry">
+            <element column="Product_Id" name="Product_Id" xsdType="string"/>
+            <element column="Product_Name" name="Product_Name" xsdType="string"/>
+            <element column="Prod_Quantity" name="Prod_Quantity" xsdType="string"/>
+            <element column="Location" name="Location" xsdType="string"/>
+        </result>
+        <param name="param0" sqlType="STRING"/>
+        <param name="param1" sqlType="STRING"/>
+    </query>
+    <query id="SetProduct" useConfig="OnlineProduct">
+        <sql>insert into ProductOnline(Product_Id,Product_Name,Prod_Quantity,Location) values(:Product_Id,:Product_Name,:Prod_Quantity,:Location)</sql>
+        <param name="Product_Id" sqlType="INTEGER"/>
+        <param name="Product_Name" sqlType="STRING"/>
+        <param name="Prod_Quantity" sqlType="INTEGER"/>
+        <param name="Location" sqlType="STRING"/>
+    </query>
+    <query id="updateProdStock" useConfig="OnlineProduct">
+        <sql>update ProductOnline set Prod_Quantity=Prod_Quantity+:Quantity where Product_Id=:Product_Id and Location=:Location</sql>
+        <param name="Quantity" sqlType="INTEGER"/>
+        <param name="Product_Id" sqlType="INTEGER"/>
+        <param name="Location" sqlType="STRING"/>
+    </query>
+    <query id="removeStock" useConfig="OnlineProduct">
+        <sql>update ProductOnline set Prod_Quantity=Prod_Quantity-:Quantity where Product_Id=:Product_Id and Prod_Quantity&gt;=:Quantity and Location=:Location</sql>
+        <param name="Quantity" sqlType="INTEGER"/>
+        <param name="Product_Id" sqlType="INTEGER"/>
+        <param name="Location" sqlType="STRING"/>
+    </query>
+    <event-trigger id="product_stock_low">
+        <expression>/ProdSql/Prod_Quantity&lt;10</expression>
+        <target-topic>stock_low</target-topic>
+        <subscriptions>
+            <subscription>mailto:sidharth.dash@yenlo.com</subscription>
+        </subscriptions>
+    </event-trigger>
+    <operation name="ProdOp">
+        <call-query href="ProdSql">
+            <with-param name="Product_Id" query-param="Product_Id"/>
+        </call-query>
+    </operation>
+    <operation name="ProdAllOp">
+        <call-query href="ProdAllSql"/>
+    </operation>
+    <operation name="ProdListOp">
+        <call-query href="ProdListSQl">
+            <with-param name="param0" query-param="param0"/>
+            <with-param name="param1" query-param="param1"/>
+        </call-query>
+    </operation>
+    <operation name="setProdOp">
+        <call-query href="SetProduct">
+            <with-param name="Product_Id" query-param="Product_Id"/>
+            <with-param name="Product_Name" query-param="Product_Name"/>
+            <with-param name="Prod_Quantity" query-param="Prod_Quantity"/>
+            <with-param name="Location" query-param="Location"/>
+        </call-query>
+    </operation>
+    <operation name="updateProdStockOp">
+        <call-query href="updateProdStock">
+            <with-param name="Quantity" query-param="Quantity"/>
+            <with-param name="Product_Id" query-param="Product_Id"/>
+            <with-param name="Location" query-param="Location"/>
+        </call-query>
+    </operation>
+    <operation name="removeStockOp">
+        <call-query href="removeStock">
+            <with-param name="Quantity" query-param="Quantity"/>
+            <with-param name="Product_Id" query-param="Product_Id"/>
+            <with-param name="Location" query-param="Location"/>
+        </call-query>
+    </operation>
+    <resource method="GET" path="Product">
+        <call-query href="ProdAllSql"/>
+    </resource>
+    <resource method="GET" path="Product/{Product_Id}">
+        <call-query href="ProdSql">
+            <with-param name="Product_Id" query-param="Product_Id"/>
+        </call-query>
+    </resource>
+    <resource method="GET" path="Product/{param0}/{param1}">
+        <call-query href="ProdListSQl">
+            <with-param name="param0" query-param="param0"/>
+            <with-param name="param1" query-param="param1"/>
+        </call-query>
+    </resource>
+    <resource method="POST" path="Products">
+        <call-query href="SetProduct">
+            <with-param name="Product_Id" query-param="Product_Id"/>
+            <with-param name="Product_Name" query-param="Product_Name"/>
+            <with-param name="Prod_Quantity" query-param="Prod_Quantity"/>
+            <with-param name="Location" query-param="Location"/>
+        </call-query>
+    </resource>
+    <resource method="PUT" path="Insertstock">
+        <call-query href="updateProdStock">
+            <with-param name="Quantity" query-param="Quantity"/>
+            <with-param name="Product_Id" query-param="Product_Id"/>
+            <with-param name="Location" query-param="Location"/>
+        </call-query>
+    </resource>
+    <resource method="PUT" path="Removestock">
+        <call-query href="removeStock">
+            <with-param name="Quantity" query-param="Quantity"/>
+            <with-param name="Product_Id" query-param="Product_Id"/>
+            <with-param name="Location" query-param="Location"/>
+        </call-query>
+    </resource>
+    <resource method="POST" path="Products_batch_req">
+        <call-query href="SetProduct">
+            <with-param name="Product_Id" query-param="Product_Id"/>
+            <with-param name="Product_Name" query-param="Product_Name"/>
+            <with-param name="Prod_Quantity" query-param="Prod_Quantity"/>
+            <with-param name="Location" query-param="Location"/>
+        </call-query>
+    </resource>
+    <resource method="PUT" path="Insertstock_batch_req">
+        <call-query href="updateProdStock">
+            <with-param name="Quantity" query-param="Quantity"/>
+            <with-param name="Product_Id" query-param="Product_Id"/>
+            <with-param name="Location" query-param="Location"/>
+        </call-query>
+    </resource>
+    <resource method="PUT" path="Removestock_batch_req">
+        <call-query href="removeStock">
+            <with-param name="Quantity" query-param="Quantity"/>
+            <with-param name="Product_Id" query-param="Product_Id"/>
+            <with-param name="Location" query-param="Location"/>
+        </call-query>
+    </resource>
+</data>

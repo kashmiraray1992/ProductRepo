@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<proxy name="CSVReadService" startOnLoad="true" transports="vfs" xmlns="http://ws.apache.org/ns/synapse">
+    <target>
+        <inSequence>
+            <smooks config-key="smooks_conf">
+                <input type="text"/>
+                <output type="xml"/>
+            </smooks>
+            <log level="full"/>
+        </inSequence>
+        <outSequence/>
+        <faultSequence/>
+    </target>
+    <parameter name="transport.vfs.Streaming">true</parameter>
+    <parameter name="transport.PollInterval">15</parameter>
+    <parameter name="transport.vfs.FileURI">file:////Users/Sidharth/training/wso2fileprocessing/update/stock.csv</parameter>
+    <parameter name="transport.vfs.ContentType">text/plain</parameter>
+    <parameter name="transport.vfs.ActionAfterProcess">MOVE</parameter>
+    <parameter name="transport.vfs.MoveAfterFailure">file:////Users/Sidharth/training/wso2fileprocessing/fault</parameter>
+    <parameter name="transport.vfs.ActionAfterFailure">MOVE</parameter>
+    <parameter name="transport.vfs.FileNamePattern">.*.csv</parameter>
+    <parameter name="transport.vfs.MoveAfterProcess">file:////Users/Sidharth/training/wso2fileprocessing/processed</parameter>
+</proxy>

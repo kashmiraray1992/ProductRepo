@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sequence name="Notification" trace="disable" xmlns="http://ws.apache.org/ns/synapse">
+    <property action="remove" name="Content-Type" scope="transport"/>
+    <call>
+        <endpoint>
+            <http method="get" uri-template="http://localhost:8280/services/OnlineProductService/Product/{uri.var.pid}"/>
+        </endpoint>
+    </call>
+    <log>
+        <property expression="$body" name="body"/>
+    </log>
+    <property expression="$body/ns0:Product/ns0:Prod_Quantity" name="Prod_Quantity" scope="default" type="STRING" xmlns:ns0="http://ws.wso2.org/dataservice"/>
+    <filter xpath="10>get-property('Prod_Quantity')">
+        <then>
+            <property name="Subject" scope="transport" type="STRING" value="Product running short"/>
+            <property name="messageType" scope="axis2" type="STRING" value="text/html"/>
+            <property name="ContentType" scope="axis2" type="STRING" value="text/html"/>
+            <property name="OUT_ONLY" scope="default" type="STRING" value="true"/>
+            <script language="js"><![CDATA[mc.setPayloadXML(<h1>Product Shortage!</h1>);]]></script>
+            <call>
+                <endpoint>
+                    <address uri="mailto:kashmiraray1992@gmail.com"/>
+                </endpoint>
+            </call>
+        </then>
+        <else>
+            <log>
+                <property name="Prod_Quantity" value="Stock available"/>
+            </log>
+        </else>
+    </filter>
+</sequence>

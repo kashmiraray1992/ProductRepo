@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<proxy name="ConditionalProxy" startOnLoad="true" transports="http https" xmlns="http://ws.apache.org/ns/synapse">
+    <target>
+        <inSequence>
+            <property expression="$trp:Product_Id" name="uri.var.pid" scope="default" type="STRING"/>
+            <property expression="$trp:Prod_Id" name="uri.var.id" scope="default" type="STRING"/>
+            <conditionalRouter continueAfter="false">
+                <conditionalRoute asynchronous="true" breakRoute="false">
+                    <condition>
+                        <and>
+                            <match regex="[1-9]+" source="Product_Id" type="header"/>
+                            <match regex="[1-9]+" source="Prod_Id" type="header"/>
+                        </and>
+                    </condition>
+                    <target sequence="ProductRange"/>
+                </conditionalRoute>
+                <conditionalRoute asynchronous="true" breakRoute="false">
+                    <condition>
+                        <match regex="[1-9]+" source="Product_Id" type="header"/>
+                    </condition>
+                    <target sequence="Product"/>
+                </conditionalRoute>
+                <conditionalRoute asynchronous="true" breakRoute="false">
+                    <condition>
+                        <match regex="/services/OnlineProductService.*" type="url"/>
+                    </condition>
+                    <target sequence="ProdList"/>
+                </conditionalRoute>
+            </conditionalRouter>
+        </inSequence>
+        <outSequence>
+            <log level="custom">
+                <property name="OUTPUT" value="Product found"/>
+            </log>
+        </outSequence>
+        <faultSequence/>
+    </target>
+</proxy>

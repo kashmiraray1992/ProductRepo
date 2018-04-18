@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<proxy name="QueueResponseProxy" startOnLoad="true" transports="http https jms" xmlns="http://ws.apache.org/ns/synapse">
+    <target>
+        <inSequence>
+            <log>
+                <property expression="$body" name="body"/>
+            </log>
+            <drop/>
+        </inSequence>
+        <outSequence/>
+        <faultSequence/>
+    </target>
+    <parameter name="transport.jms.SessionAcknowledgement">CLIENT_ACKNOWLEDGE</parameter>
+    <parameter name="transport.jms.DestinationType">queue</parameter>
+    <parameter name="transport.jms.Destination">JMSMessageProcessing</parameter>
+    <parameter name="transport.jms.ContentType">
+        <rules xmlns="">
+            <jmsProperty>contentType</jmsProperty>
+            <default>text/xml</default>
+        </rules>
+    </parameter>
+    <parameter name="transport.jms.SessionTransacted">true</parameter>
+    <parameter name="transport.jms.ConnectionFactory">myQueueConnectionFactory</parameter>
+</proxy>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sequence name="LoggerSeq" trace="disable" xmlns="http://ws.apache.org/ns/synapse">
+    <log description="Logger Seq">
+        <property expression="$body" name="logging"/>
+    </log>
+</sequence>

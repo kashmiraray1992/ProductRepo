@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><artifacts>
+    <artifact name="SampleLogging" groupId="com.example.ESBDemo.proxy-service" version="1.0.0" type="synapse/proxy-service" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/proxy-services/SampleLogging.xml</file>
+    </artifact>
+    <artifact name="LoggerSeq" groupId="com.example.ESBDemo.sequence" version="1.0.0" type="synapse/sequence" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/sequences/LoggerSeq.xml</file>
+    </artifact>
+    <artifact name="QueueResponseProxy" groupId="com.example.ESBDemo.proxy-service" version="1.0.0" type="synapse/proxy-service" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/proxy-services/QueueResponseProxy.xml</file>
+    </artifact>
+    <artifact name="QueueProxy" groupId="com.example.ESBDemo.proxy-service" version="1.0.0" type="synapse/proxy-service" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/proxy-services/QueueProxy.xml</file>
+    </artifact>
+    <artifact name="AccountProxy" groupId="com.example.ESBDemo.proxy-service" version="1.0.0" type="synapse/proxy-service" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/proxy-services/AccountProxy.xml</file>
+    </artifact>
+    <artifact name="ProdList" groupId="com.example.ESBDemo.sequence" version="1.0.0" type="synapse/sequence" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/sequences/ProdList.xml</file>
+    </artifact>
+    <artifact name="Product" groupId="com.example.ESBDemo.sequence" version="1.0.0" type="synapse/sequence" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/sequences/Product.xml</file>
+    </artifact>
+    <artifact name="ProductRange" groupId="com.example.ESBDemo.sequence" version="1.0.0" type="synapse/sequence" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/sequences/ProductRange.xml</file>
+    </artifact>
+    <artifact name="ConditionalProxy" groupId="com.example.ESBDemo.proxy-service" version="1.0.0" type="synapse/proxy-service" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/proxy-services/ConditionalProxy.xml</file>
+    </artifact>
+    <artifact name="ProductProxy" groupId="com.example.ESBDemo.proxy-service" version="1.0.0" type="synapse/proxy-service" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/proxy-services/ProductProxy.xml</file>
+    </artifact>
+    <artifact name="SetProduct" groupId="com.example.ESBDemo.proxy-service" version="1.0.0" type="synapse/proxy-service" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/proxy-services/SetProduct.xml</file>
+    </artifact>
+    <artifact name="JMSProxy" groupId="com.example.ESBDemo.proxy-service" version="1.0.0" type="synapse/proxy-service" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/proxy-services/JMSProxy.xml</file>
+    </artifact>
+    <artifact name="ProductStock" groupId="com.example.ESBDemo.proxy-service" version="1.0.0" type="synapse/proxy-service" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/proxy-services/ProductStock.xml</file>
+    </artifact>
+    <artifact name="RemoveStock" groupId="com.example.ESBDemo.proxy-service" version="1.0.0" type="synapse/proxy-service" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/proxy-services/RemoveStock.xml</file>
+    </artifact>
+    <artifact name="ValidateId" groupId="com.example.ESBDemo.sequence" version="1.0.0" type="synapse/sequence" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/sequences/ValidateId.xml</file>
+    </artifact>
+    <artifact name="Notification" groupId="com.example.ESBDemo.sequence" version="1.0.0" type="synapse/sequence" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/sequences/Notification.xml</file>
+    </artifact>
+    <artifact name="CSVReadService" groupId="com.example.ESBDemo.proxy-service" version="1.0.0" type="synapse/proxy-service" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/proxy-services/CSVReadService.xml</file>
+    </artifact>
+    <artifact name="smooks_conf" groupId="com.example.ESBDemo.local-entry" version="1.0.0" type="synapse/local-entry" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/local-entries/smooks_conf.xml</file>
+    </artifact>
+</artifacts>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sequence name="ValidateId" trace="disable" xmlns="http://ws.apache.org/ns/synapse">
+    <switch source="get-property('Location')">
+        <case regex="Store">
+            <property action="remove" name="Content-Type" scope="transport"/>
+            <call>
+                <endpoint>
+                    <http method="get" uri-template="http://localhost:8280/services/InstoreService/Singleproduct/{uri.var.pid}"/>
+                </endpoint>
+            </call>
+            <log>
+                <property expression="$body" name="body"/>
+            </log>
+            <property expression="$body/ns0:Product/ns0:Product_Id" name="Prod_Id" scope="default" type="STRING" xmlns:ns0="http://ws.wso2.org/dataservice"/>
+            <log>
+                <property expression="$ctx:Prod_Id" name="Prod_Id"/>
+                <property expression="$ctx:uri.var.pid" name="uri.var.pid"/>
+            </log>
+            <filter xpath="get-property('Prod_Id')=get-property('uri.var.pid')">
+                <then>
+                    <property name="idexist" scope="default" type="STRING" value="true"/>
+                </then>
+                <else>
+                    <property name="idexist" scope="default" type="STRING" value="false"/>
+                </else>
+            </filter>
+        </case>
+        <default>
+            <property action="remove" name="Content-Type" scope="transport"/>
+            <call>
+                <endpoint>
+                    <http method="get" uri-template="http://localhost:8280/services/OnlineProductService/Product/{uri.var.pid}"/>
+                </endpoint>
+            </call>
+            <log>
+                <property expression="$body" name="body"/>
+            </log>
+            <property expression="$body/ns0:Product/ns0:Product_Id" name="Prod_Id" scope="default" type="STRING" xmlns:ns0="http://ws.wso2.org/dataservice"/>
+            <log>
+                <property expression="$ctx:Prod_Id" name="Prod_Id"/>
+                <property expression="$ctx:uri.var.pid" name="uri.var.pid"/>
+            </log>
+            <filter xpath="get-property('Prod_Id')=get-property('uri.var.pid')">
+                <then>
+                    <property name="idexist" scope="default" type="STRING" value="true"/>
+                </then>
+                <else>
+                    <property name="idexist" scope="default" type="STRING" value="false"/>
+                </else>
+            </filter>
+        </default>
+    </switch>
+</sequence>

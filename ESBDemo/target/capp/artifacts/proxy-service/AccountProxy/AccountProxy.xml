@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<proxy name="AccountProxy" startOnLoad="true" transports="http https" xmlns="http://ws.apache.org/ns/synapse">
+    <target>
+        <inSequence>
+            <!-- <header name="SOAPAction" value="urn:AccountOp" scope="transport" />
+			<header name="ContentType" value="text/html" scope="transport" />
+			<payloadFactory media-type="xml">
+				<format>
+					<p:AccountOp xmlns="" xmlns:p="http://ws.wso2.org/dataservice">
+						<xs:AccountID xmlns:xs="http://ws.wso2.org/dataservice">$1</xs:AccountID>
+					</p:AccountOp>
+				</format>
+				<args>
+					<arg evaluator="xml" expression="$trp:id" />
+				</args>
+			</payloadFactory>
+			<log level="custom">
+				<property expression="$body" name="body" />
+			</log>
+
+			<property name="messageType" value="text/xml" scope="axis2" />
+			<property name="ContentType" value="text/xml" scope="axis2" /> -->
+            <call>
+                <endpoint>
+                    <http method="post" uri-template="http://localhost:8280/services/AccountDetailsService/Account/1"/>
+                </endpoint>
+            </call>
+            <respond/>
+        </inSequence>
+        <outSequence/>
+        <faultSequence/>
+    </target>
+</proxy>
